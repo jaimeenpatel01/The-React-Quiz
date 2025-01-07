@@ -67,7 +67,6 @@ function reducer(state, action) {
       };
     case "restart":
       return { ...initialState, questions: state.questions, status: "ready" };
-
     case "tick":
       return {
         ...state,
@@ -90,15 +89,22 @@ export default function App() {
     highestScore,
     secondsRemaining,
   } = state;
+  
   const numQuestions = questions.length;
   const totalPoints = questions.reduce((acc, curr) => curr.points + acc, 0);
 
   useEffect(function () {
-    fetch("http://localhost:8000/questions")
-      .then((res) => res.json())
-      .then((data) => dispatch({ type: "dataReceived", payload: data }))
+    fetch("/questions.json")
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to load questions");
+        return res.json();
+      })
+      .then((data) => {
+        dispatch({ type: "dataReceived", payload: data.questions });
+      })
       .catch(() => dispatch({ type: "dataFailed" }));
   }, []);
+  
 
   return (
     <div className="app">
